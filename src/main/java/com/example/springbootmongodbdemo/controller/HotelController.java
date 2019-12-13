@@ -1,7 +1,9 @@
 package com.example.springbootmongodbdemo.controller;
 
 import com.example.springbootmongodbdemo.model.Hotel;
+import com.example.springbootmongodbdemo.model.QHotel;
 import com.example.springbootmongodbdemo.repository.HotelRepository;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -50,6 +52,31 @@ public class HotelController {
     @GetMapping("/address/{city}")
     public List<Hotel> getByCity(@PathVariable("city")String city) {
         List<Hotel> hotels = repository.findByCity(city);
+        return hotels;
+    }
+
+    @GetMapping("/country/{country}")
+    public List<Hotel> getByCountry(@PathVariable("country") String country) {
+        // create a query class (QHotel)
+        QHotel qhotel = new QHotel("hotel");
+
+        BooleanExpression filterByCountry = qhotel.address.country.eq(country);
+
+        List<Hotel> hotels = (List<Hotel>)this.repository.findAll(filterByCountry);
+        return hotels;
+    }
+
+    @GetMapping("/recommended")
+    public List<Hotel> getRecommended() {
+        final int maxPrice = 100;
+        final int minRating = 7;
+
+        QHotel qHotel = new QHotel("hotel");
+
+        BooleanExpression filterByMaxPrice = qHotel.pricePerNight.lt(maxPrice);
+        BooleanExpression filterByMinRating = qHotel.reviews.any().rating.gt(minRating);
+
+        List<Hotel> hotels = (List<Hotel>) repository.findAll(filterByMaxPrice.and(filterByMinRating));
         return hotels;
     }
 }
