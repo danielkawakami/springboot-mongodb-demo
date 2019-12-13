@@ -46,4 +46,10 @@ public class HotelController {
     public List<Hotel> getByPricePerNight(@PathVariable("maxPrice") int maxPrice) {
         return repository.findByPricePerNightLessThan(maxPrice);
     }
+
+    @GetMapping("/address/{city}")
+    public List<Hotel> getByCity(@PathVariable("city")String city) {
+        List<Hotel> hotels = repository.findByCity(city);
+        return hotels;
+    }
 }
